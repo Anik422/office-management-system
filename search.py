@@ -11,13 +11,14 @@ class search_win:
         global db
         db = Mydatabase()
         self.root = root
-        self.root.title("Debit Data")
-        self.root.geometry("1135x500+232+213")
+        self.root.title("Search Data")
+        self.root.geometry("1210x550+150+170")
         self.root.iconphoto(False,PhotoImage(file="images/icon.png"))
 
         #   ========================  Title  ========================
 
-        debit_lbl_title = Label(self.root, text="ADD DEBIT DATA DETAILS", font=("times new roman",20,"bold"), bg="#03396c", fg="#eeeeee", bd=2, relief="groove").place(x=0 , y=0, width=1135, height=40 )
+        search_lbl_titel = Label(self.root, text="ADD DEBIT DATA DETAILS", font=("times new roman",20,"bold"), bg="#03396c", fg="#eeeeee", bd=2, relief="groove")
+        search_lbl_titel.place(x=0 , y=0, width=1210, height=40)
 
         #   ========================  Logo Image  ========================
         
@@ -26,17 +27,7 @@ class search_win:
         self.photoLogoImg = ImageTk.PhotoImage(logo_img)
         logoLblImg = Label(self.root, image=self.photoLogoImg, bd=0, relief="groove").place(x=0, y=0, width=80, height=40)
 
-         #   ========================  Title  ========================
-
-        debit_lbl_title = Label(self.root, text="SEARCH DATA & CREATE PDF FILE", font=("times new roman",20,"bold"), bg="#03396c", fg="#eeeeee", bd=2, relief="groove").place(x=0 , y=0, width=1135, height=40 )
-
-        #   ========================  Logo Image  ========================
-        
-        logo_img = Image.open("images/logo.jpg")
-        logo_img = logo_img.resize((80, 40))
-        self.photoLogoImg = ImageTk.PhotoImage(logo_img)
-        logoLblImg = Label(self.root, image=self.photoLogoImg, bd=0, relief="groove").place(x=0, y=0, width=80, height=40)
-
+     
         #   ========================  search entry frame ========================
 
         search_entry_frame = Frame(self.root, bd=2, relief="groove", padx=2, bg="#b3cde0")
@@ -50,30 +41,9 @@ class search_win:
         lbl_search.grid(row=0, column=0, padx=3)
 
          
-        search_table_names = ['Dailay Account',
-                            'Cash Receiv/Pay', 
-                            'Managing Director',
-                            'Stationary', 
-                            'Office Maintenance', 
-                            'Dailay Expendeture', 
-                            'Convance', 
-                            'TNT/Mobile Bill Office', 
-                            'Courier', 
-                            'Gift', 
-                            'MD Houae', 
-                            'MD Houae Baribadh', 
-                            'MD Car', 
-                            'MD Mobil & BKash', 
-                            'MD Credit Card Payment', 
-                            'Fees & Tex', 
-                            'C & F', 
-                            'Carring Cost', 
-                            'Bill', 
-                            'RENT SEVER OFFICE', 
-                            'RENT HEAD OFFICE', 
-                            'Renewal Fees', 
-                            'Tannery Machinaries setup and Maintenance',
-                            ]
+  
+        search_table_names = db.fatch_table_name('All')
+        search_table_names.append("Dailay Account")
         self.combobox_search_table_name = ttk.Combobox(search_entry_frame, values=search_table_names, font=("times new roman",12, "bold"), state='readonly')
         self.combobox_search_table_name.grid(row=0, column=1,padx=3)
         self.combobox_search_table_name.set("Select Table")
@@ -98,17 +68,19 @@ class search_win:
 
 
      #   ========================  table frame function ========================
-    def col_3_table(self, t_name, date, cd):
+    def col_3_table(self, t_name, date, toDate, cd):
         #   ========================  table lable frame ========================
-
-        table_frame = LabelFrame(self.root, text=t_name+" Table View"+"({})".format(date), bd=2, relief="groove", font=("times new roman",20,"bold"), padx=2)
-        table_frame.place(x=5, y=84, width=1125, height=405)
+        if date == "All":
+            table_frame = LabelFrame(self.root, text=t_name+" Table View"+"({} {})".format(date, toDate), bd=2, relief="groove", font=("times new roman",20,"bold"), padx=2)
+        else:
+            table_frame = LabelFrame(self.root, text=t_name+" Table View"+"({} TO {})".format(date, toDate), bd=2, relief="groove", font=("times new roman",20,"bold"), padx=2)
+        table_frame.place(x=5, y=84, width=1200, height=430)
 
 
         #   ========================  show data table ========================
         
         show_data_frame = Frame(table_frame, bd=2, relief="groove")
-        show_data_frame.place(x=0, y=5, width=1115, height=357)
+        show_data_frame.place(x=0, y=5, width=1190, height=350)
 
         scroll_x = ttk.Scrollbar(show_data_frame, orient=HORIZONTAL)
         scroll_y = ttk.Scrollbar(show_data_frame, orient=VERTICAL)
@@ -123,12 +95,24 @@ class search_win:
         scroll_x.config(command=self.data_3_deatlis.xview)
         self.data_3_deatlis.heading("date", text="Date")
         self.data_3_deatlis.heading("description", text="Description")
+
+
+        #   ========================  total amount view ========================
+        total_frame = Frame(table_frame, bd=2, relief="groove")
+        total_frame.place(x=950, y=358, width=200, height=33)
         if cd == 'C':
             self.data_3_deatlis.heading("amount", text="Ricived")
+            lbl_total = Label(total_frame, text="Total Ricived :", font=("times new roman",15, "bold"))
+            lbl_total.grid(row=0, column=0)
         elif cd == 'D':
             self.data_3_deatlis.heading("amount", text="Cost")
+            lbl_total = Label(total_frame, text="Total Cost:", font=("times new roman",15, "bold"))
+            lbl_total.grid(row=0, column=0)
         self.data_3_deatlis["show"]="headings"
 
+        total_amount = db.search_dataToDate_total_amount(t_name, date, toDate, cd)
+        lbl_total = Label(total_frame, text=total_amount[0][0], font=("times new roman",15, "bold"))
+        lbl_total.grid(row=0, column=1)
 
         self.data_3_deatlis.column('date', width=10)
         self.data_3_deatlis.column('description', width=700)
@@ -138,18 +122,22 @@ class search_win:
 
 
 
-     #   ========================  table frame function ========================self.
-    def col_4_table(self, t_name, date):
-        #   ========================  table lable frame ========================
 
-        table_frame = LabelFrame(self.root, text=t_name+" Table View"+"({})".format(date), bd=2, relief="groove", font=("times new roman",20,"bold"), padx=2)
-        table_frame.place(x=5, y=84, width=1125, height=405)
+
+     #   ========================  table frame function ========================self.
+    def col_4_table(self, t_name, date, toDate):
+        #   ========================  table lable frame ========================
+        if date == "All":
+            table_frame = LabelFrame(self.root, text=t_name+" Table View"+"({} {})".format(date, toDate), bd=2, relief="groove", font=("times new roman",20,"bold"), padx=2)
+        else:
+            table_frame = LabelFrame(self.root, text=t_name+" Table View"+"({} TO {})".format(date, toDate), bd=2, relief="groove", font=("times new roman",20,"bold"), padx=2)
+        table_frame.place(x=5, y=84, width=1200, height=430)
 
 
         #   ========================  show data table ========================
         
         show_data_frame = Frame(table_frame, bd=2, relief="groove")
-        show_data_frame.place(x=0, y=5, width=1115, height=357)
+        show_data_frame.place(x=0, y=5, width=1190, height=350)
 
         scroll_x = ttk.Scrollbar(show_data_frame, orient=HORIZONTAL)
         scroll_y = ttk.Scrollbar(show_data_frame, orient=VERTICAL)
@@ -176,6 +164,20 @@ class search_win:
 
         self.data_4_deatlis.pack(fill=BOTH, expand=1)
 
+        #   ========================  total amount view ========================
+        total_frame_ricived = Frame(table_frame, bd=2, relief="groove")
+        total_frame_ricived.place(x=685, y=358, width=250, height=33)
+        total_frame_cost = Frame(table_frame, bd=2, relief="groove")
+        total_frame_cost.place(x=940, y=358, width=250, height=33)
+        total_amount = db.search_dataToDate_total_amount(t_name, date, toDate, 'CD')
+        lbl_total = Label(total_frame_ricived, text="Total Ricived:", font=("times new roman",15, "bold"))
+        lbl_total.grid(row=0, column=0)
+        lbl_total = Label(total_frame_ricived, text=total_amount[0][0], font=("times new roman",15, "bold"))
+        lbl_total.grid(row=0, column=1)
+        lbl_total = Label(total_frame_cost, text="Total Cost:", font=("times new roman",15, "bold"))
+        lbl_total.grid(row=0, column=0)
+        lbl_total = Label(total_frame_cost, text=total_amount[0][1], font=("times new roman",15, "bold"))
+        lbl_total.grid(row=0, column=1)
 
 
     #  # #   ========================  btn date to date search function ========================
@@ -204,19 +206,19 @@ class search_win:
         else:
             try:
                 if crdr == "CD":
-                    self.col_4_table(table_name, str(date)+" To "+ str(toDate))
+                    self.col_4_table(table_name, date, toDate)
                     if len(table_value) != 0:
                         self.data_4_deatlis.delete(*self.data_4_deatlis.get_children())
                         for i in table_value:
                             self.data_4_deatlis.insert("", END, values=i)
                 elif crdr == 'C':
-                    self.col_3_table(table_name, "All Data", crdr)
+                    self.col_3_table(table_name, date, toDate, crdr)
                     if len(table_value) != 0:
                         self.data_3_deatlis.delete(*self.data_3_deatlis.get_children())
                         for i in table_value:
                             self.data_3_deatlis.insert("", END, values=i)
                 else:
-                    self.col_3_table(table_name, "All Data", crdr)
+                    self.col_3_table(table_name, date, toDate, crdr)
                     if len(table_value) != 0:
                         self.data_3_deatlis.delete(*self.data_3_deatlis.get_children())
                         for i in table_value:
@@ -246,19 +248,19 @@ class search_win:
         else:
             try:
                 if crdr == "CD":
-                    self.col_4_table(table_name, "All Data")
+                    self.col_4_table(table_name, "All", "Data")
                     if len(table_value) != 0:
                         self.data_4_deatlis.delete(*self.data_4_deatlis.get_children())
                         for i in table_value:
                             self.data_4_deatlis.insert("", END, values=i)
                 elif crdr == 'C':
-                    self.col_3_table(table_name, "All Data", crdr)
+                    self.col_3_table(table_name, "All", "Data", crdr)
                     if len(table_value) != 0:
                         self.data_3_deatlis.delete(*self.data_3_deatlis.get_children())
                         for i in table_value:
                             self.data_3_deatlis.insert("", END, values=i)
                 else:
-                    self.col_3_table(table_name, "All Data", crdr)
+                    self.col_3_table(table_name, "All","Data", crdr)
                     if len(table_value) != 0:
                         self.data_3_deatlis.delete(*self.data_3_deatlis.get_children())
                         for i in table_value:
@@ -277,5 +279,4 @@ class search_win:
 if __name__ == "__main__":
     root = Tk()
     obj = search_win(root)
-    # obj.col_4_table()
     root.mainloop()

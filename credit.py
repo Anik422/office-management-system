@@ -12,7 +12,7 @@ class Credit_win:
         db = Mydatabase()
         self.root = root
         self.root.title("Credit Data")
-        self.root.geometry("1210x500+155+213")
+        self.root.geometry("1210x550+155+170")
         self.root.iconphoto(False,PhotoImage(file="images/icon.png"))
 
 
@@ -49,10 +49,10 @@ class Credit_win:
         entry_date.grid(row=0, column=1, padx=10, pady=10, ipadx=63)
  
         # #   ========================  Description label nad entry ========================
-        table_names = ['Cash Receiv/Pay', 'Managing Director']
+        
         lbl_table_name = Label(lable_frame_laft, justify=LEFT, anchor="w", text="Table : ", font=("times new roman",15,"bold"), padx=2, pady=6)
         lbl_table_name.grid(row=1, column=0)
-        combobox_table_name = ttk.Combobox(lable_frame_laft, values=table_names, font=("times new roman",15), state='readonly', textvariable=self.table_name)
+        combobox_table_name = ttk.Combobox(lable_frame_laft, values= db.fatch_table_name('C'), font=("times new roman",15), state='readonly', textvariable=self.table_name)
         combobox_table_name.grid(row=1, column=1, padx=10, pady=10, ipadx=20)
         combobox_table_name.set("Select table")
        
@@ -100,6 +100,7 @@ class Credit_win:
         lbl_search.grid(row=0, column=0, padx=3)
 
          
+        table_names = db.fatch_table_name('C')
         table_names.append("Dailay Account")
         self.combobox_search_table_name = ttk.Combobox(search_frame, values=table_names, font=("times new roman",10, "bold"), state='readonly')
         self.combobox_search_table_name.grid(row=0, column=1,padx=3)
@@ -127,13 +128,13 @@ class Credit_win:
         #   ========================  table lable frame ========================
 
         table_frame = LabelFrame(self.root, text= view_table_name +" Table View"+"({})".format(date) , bd=2, relief="groove", font=("times new roman",20,"bold"), padx=2)
-        table_frame.place(x=440, y=85, width=750, height=405)
+        table_frame.place(x=440, y=85, width=750, height=390)
 
 
         #   ========================  show data table ========================
 
         show_data_frame = Frame(table_frame, bd=2, relief="groove")
-        show_data_frame.place(x=0, y=10, width=740, height=357)
+        show_data_frame.place(x=0, y=10, width=740, height=290)
 
         scroll_x = ttk.Scrollbar(show_data_frame, orient=HORIZONTAL)
         scroll_y = ttk.Scrollbar(show_data_frame, orient=VERTICAL)
@@ -159,6 +160,18 @@ class Credit_win:
         # self.dailay_account_view("Dailay Account")
 
         self.data_deatlis.pack(fill=BOTH, expand=1)
+
+    #   ========================  total amount view ========================
+        total_frame = Frame(table_frame, bd=2, relief="groove")
+        total_frame.place(x=500, y=305, width=200, height=33)
+
+        lbl_total = Label(total_frame, text="Total :", font=("times new roman",15, "bold"))
+        lbl_total.grid(row=0, column=0)
+        total_amount = db.search_data_total_amount(view_table_name, date, "C")
+        lbl_total = Label(total_frame, text=total_amount, font=("times new roman",15, "bold"))
+        lbl_total.grid(row=0, column=1)
+
+
     #   ========================  add data ========================
     def add_data(self):
         if self.description.get() == "":
